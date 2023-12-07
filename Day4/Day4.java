@@ -53,6 +53,7 @@ public class Day4 {
 			
 			cardNr += 1;
 		}
+		sc.close();
 		for(int i : map.keySet()) {
 			if(i <= cardNr) sum_part2 += map.get(i);
 		}
