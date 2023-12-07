@@ -21,6 +21,7 @@ public class Main {
 			Hand h = new Hand(cards,Integer.parseInt(bid),joker);
 			hands.add(h);
 		}
+		sc.close();
 		
 		int result_part1 = 0;
 		Collections.sort(hands);
