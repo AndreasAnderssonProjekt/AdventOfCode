@@ -30,6 +30,7 @@ public class Day2 {
 			res_part2 += power;
 			
 		}
+		sc.close();
 		System.out.println(res_part1);
 		System.out.println(res_part2);
 
