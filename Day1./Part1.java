@@ -23,6 +23,7 @@ public class Part1 {
 		
 		sum += first * 10 + last;
 	}
+	sc.close();
 	System.out.println(sum);
 }
 }
