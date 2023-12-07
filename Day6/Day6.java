@@ -21,6 +21,7 @@ public class Day6 {
 			else dist = line.trim().split("\\s+");
 			index += 1;
 		}
+		sc.close();
 		
 		//Create required String for part 2.
 		for(int i = 1; i < time.length; i++) {
