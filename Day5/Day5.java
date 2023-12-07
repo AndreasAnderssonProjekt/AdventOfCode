@@ -41,6 +41,7 @@ public class Day5 {
 				updateMap(nrs, mapNr);
 				
 			}
+			sc.close();
 			String pre = (part1) ? "Part1: " : "Part2: ";
 			
 			
