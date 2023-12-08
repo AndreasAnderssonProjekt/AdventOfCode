@@ -90,11 +90,5 @@ public class Day8Part2 {
 			currPos.set(i, nextPos);
 		}
 	}
-	
-	
-	
-	
-	
-     
-    // Driver Code
+
 }
