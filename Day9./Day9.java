@@ -21,6 +21,7 @@ public class Day9 {
 			nextNumbers_part2.add(nextNumber_part2);
 			
 		}
+		sc.close();
 		
 		
 		int sum_part1 = 0;
