@@ -33,7 +33,7 @@ public class Day10 {
 	
 	
 	public static void main(String[] args) throws FileNotFoundException {
-		File file = new File("C:\\Users\\Andre\\eclipse-workspace\\Advent\\src\\testExempel");
+		File file = new File("C:\\Users\\Andre\\eclipse-workspace\\Advent\\src\\Day10");
 		Scanner sc = new Scanner(file);
 		
 		ArrayList<String> lines = new ArrayList<>();
@@ -47,18 +47,23 @@ public class Day10 {
 		int boardHeight = lines.size();
 		int boardWidth = lines.get(0).length();
 		boolean[][] visited = new boolean[boardHeight][boardWidth];
-		int[][] distances = new int[boardHeight][boardWidth];
+		
 		Pipe startPipe = d.startPosition(lines);
 		
-		visited[startPipe.getY()][startPipe.getX()] = true;
+		
 		d.dfs(startPipe, lines, visited);
+		
+		
+		int nrInside = 0;
 		for(int i = 0; i < visited.length; i++) {
-			for(int j = 0; j < visited[0].length; j++) {
-				System.out.print(" " + visited[i][j]);
-			}
-			System.out.println();
+			
+					if(d.containedPoint(i, lines, visited)) {
+						nrInside += 1;
+					}
 		}
-		System.out.println(d.longestDistance(visited));
+		
+		System.out.println("Part 1: " + d.longestDistance(visited));
+		System.out.println("Part 2: " + nrInside);
 		
 		
 
@@ -72,15 +77,48 @@ public class Day10 {
 				if(visited[i][j]) dist += 1;
 			}
 		}
-		return Math.floorDiv(dist+1,2);
+		return Math.floorDiv((dist-1),2) + 1;
 	}
 	
+	
+	public boolean containedPoint(int y, ArrayList<String> lines, boolean[][] visited) {
+		Character up = null;
+		boolean inside = false;
+		for(int i = 0; i < visited[y].length; i++) {
+			
+			char c = lines.get(y).charAt(i);
+			if(c == '|' && visited[y][i]) {
+				assert (up == null);
+				inside = !inside;
+			}
+			
+			else if(c == '-' && visited[y][i]) {
+				assert (up != null);
+			}
+			
+			else if((c == 'L' || c == 'F' || c == 'S') && visited[y][i]) {
+				assert (up == null);
+				if(c == 'L') up = 'L';
+			}
+			else if((c == '7' || c == 'J') && visited[y][i]) {
+				assert (up != null);
+				if(c != ((up != null) ? 'J' : '7')) {
+					inside = !inside;
+				}
+				up = null;
+				
+				
+			}
+				
+		}
+		return !inside;
+	}
 	
 	public void dfs(Pipe startPipe, ArrayList<String> lines, boolean[][] visited) {
 		
 		Queue<Pipe> queue = new LinkedList<>();
 		queue.add(startPipe);
-		
+		visited[startPipe.getY()][startPipe.getX()] = true;
 		while(!queue.isEmpty()) {
 		Pipe pipe1 = queue.poll();
 		
@@ -89,11 +127,14 @@ public class Day10 {
 		
 		Pipe pipe = null;
 		
+		int addedPipes = 0;
 		if(x > 0) {
 			pipe = new Pipe(x-1,y, lines.get(y).charAt(x-1));
 			if(compatablePipes(pipe1,pipe,lines) && !visited[y][x-1]) {
 				visited[y][x-1] = true;
 				queue.add(pipe);
+				addedPipes += 1;
+				if(x == 4 && y == 78) System.out.println("left");
 			}
 		}
 		
@@ -101,7 +142,10 @@ public class Day10 {
 			pipe = new Pipe(x+1,y, lines.get(y).charAt(x+1));
 			if(compatablePipes(pipe1,pipe,lines) && !visited[y][x+1]) {
 				visited[y][x+1] = true;
+				
 				queue.add(pipe);
+				addedPipes += 1;
+				
 			}
 		}
 		
@@ -110,7 +154,12 @@ public class Day10 {
 			if(compatablePipes(pipe1,pipe,lines) && !visited[y-1][x]) {
 				//System.out.println("HEJ3");
 				visited[y-1][x] = true;
+				
 				queue.add(pipe);
+				
+				addedPipes += 1;
+				
+				
 			}
 		}
 		
@@ -121,8 +170,12 @@ public class Day10 {
 				
 				visited[y+1][x] = true;
 				queue.add(pipe);
+				addedPipes += 1;
+				
 			}
 		}
+		
+		
 		}
 		
 	}
@@ -139,14 +192,14 @@ public class Day10 {
 		// pipe1 lie to the left of pipe2. In this case, the only compatable pipe combinations are
 		//(-,-), (L,-), (-,J), (-,7), (F,J), (F,7), (L,7), (F,-),(L,J),(F,L)
 		if(x1 < x2) { 
-			if((type1 == '-' && type2 == '-') ||(type1 == 'L' && type2 == '-') || (type1 == '-' && type2 == 'J') || (type1 == '-' && type2 == '7') || (type1 == 'F' && type2 == 'J') || (type1 == 'F' && type2 == '7') || (type1 == 'L' && type2 == '7') || (type1 == 'F' && type2 == '-') || (type1 == 'L' && type2 == 'J') || (type1 == 'F' && type2 == 'L')) {
+			if((type1 == '-' && type2 == '-') ||(type1 == 'L' && type2 == '-') || (type1 == '-' && type2 == 'J') || (type1 == '-' && type2 == '7') || (type1 == 'F' && type2 == 'J') || (type1 == 'F' && type2 == '7') || (type1 == 'L' && type2 == '7') || (type1 == 'F' && type2 == '-') || (type1 == 'L' && type2 == 'J') ) {
 				return true;
 			}
 		}
 		//pipe1 lie to the right of pipe2. In this case, the only compatable pipe combinations are
 		//(-,-),(-,L), (J,-), (7,-), (J,F), (7,F), (7,L),(-,F), (J,L), (L,F)
 		else if(x1 > x2) {
-			if((type1 == '-' && type2 == '-') ||(type1 == '-' && type2 == 'L') || (type1 == 'J' && type2 == '-') || (type1 == '7' && type2 == '-') || (type1 == 'J' && type2 == 'F') || (type1 == '7' && type2 == 'F') || (type1 == '7' && type2 == 'L')|| (type1 == '-' && type2 == 'F') || (type1 == 'J' && type2 == 'L') || (type1 == 'L' && type2 == 'F')) {
+			if((type1 == '-' && type2 == '-') ||(type1 == '-' && type2 == 'L') || (type1 == 'J' && type2 == '-') || (type1 == '7' && type2 == '-') || (type1 == 'J' && type2 == 'F') || (type1 == '7' && type2 == 'F') || (type1 == '7' && type2 == 'L')|| (type1 == '-' && type2 == 'F') || (type1 == 'J' && type2 == 'L') ) {
 				return true;
 			}
 		}
@@ -171,7 +224,10 @@ public class Day10 {
 	public Pipe startPosition(ArrayList<String> lines) {
 		for(int i = 0; i < lines.size(); i++) {
 			for(int j = 0; j < lines.get(i).length(); j++) {
-				if (lines.get(i).charAt(j) == 'S') return new Pipe(j,i,'F');
+				if (lines.get(i).charAt(j) == 'S') {
+					
+					return new Pipe(j,i,'F');
+				}
 			}
 		}
 		return null;
