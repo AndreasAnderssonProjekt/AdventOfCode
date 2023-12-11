@@ -54,13 +54,10 @@ public class Day10 {
 		d.dfs(startPipe, lines, visited);
 		
 		
-		int nrInside = 0;
-		for(int i = 0; i < visited.length; i++) {
+		int nrInside = d.containedPoints(lines, visited);
+		
+		
 			
-					if(d.containedPoint(i, lines, visited)) {
-						nrInside += 1;
-					}
-		}
 		
 		System.out.println("Part 1: " + d.longestDistance(visited));
 		System.out.println("Part 2: " + nrInside);
@@ -80,38 +77,57 @@ public class Day10 {
 		return Math.floorDiv((dist-1),2) + 1;
 	}
 	
+	public int loopLength(boolean[][] visited) {
+		int length = 0;
+		for(int i = 0; i < visited.length; i++) {
+			for(int j = 0; j < visited[0].length; j++) {
+				if(visited[i][j]) length += 1;
+			}
+		}
+		return length;
+	}
 	
-	public boolean containedPoint(int y, ArrayList<String> lines, boolean[][] visited) {
-		Character up = null;
-		boolean inside = false;
-		for(int i = 0; i < visited[y].length; i++) {
+	
+	public int containedPoints(ArrayList<String> lines, boolean[][] visited) {
+		
+		int sum = 0;
+		for(int i = 0; i < visited.length; i++) {
+			Character up = null;
+			boolean inside = false;
 			
-			char c = lines.get(y).charAt(i);
-			if(c == '|' && visited[y][i]) {
-				assert (up == null);
-				inside = !inside;
-			}
-			
-			else if(c == '-' && visited[y][i]) {
-				assert (up != null);
-			}
-			
-			else if((c == 'L' || c == 'F' || c == 'S') && visited[y][i]) {
-				assert (up == null);
-				if(c == 'L') up = 'L';
-			}
-			else if((c == '7' || c == 'J') && visited[y][i]) {
-				assert (up != null);
-				if(c != ((up != null) ? 'J' : '7')) {
+			for(int j = 0; j < visited[i].length; j++) {
+				
+				char c = lines.get(i).charAt(j);
+				if(c == '|' && visited[i][j]) {
+					assert (up == null);
 					inside = !inside;
 				}
-				up = null;
 				
+				else if(c == '-' && visited[i][j]) {
+					assert (up != null);
+				}
 				
-			}
+				else if((c == 'L' || c == 'F' || c == 'S') && visited[i][j]) {
+					assert (up == null);
+					if(c == 'L') up = 'L';
+				}
+				else if((c == '7' || c == 'J') && visited[i][j]) {
+					assert (up != null);
+					if(c != ((up != null) ? 'J' : '7')) {
+						inside = !inside;
+					}
+					up = null;
+					
+					
+				}
 				
+				 
+				if(!inside ||visited[i][j]) sum += 1;
 		}
-		return !inside;
+		}
+		System.out.println(sum);
+		return visited.length * visited[0].length - sum;
+		
 	}
 	
 	public void dfs(Pipe startPipe, ArrayList<String> lines, boolean[][] visited) {
