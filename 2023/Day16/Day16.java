@@ -115,24 +115,15 @@ public class Day16 {
 		
 		Day16 d = new Day16();
 		
-		
-		
 		char[][] boardCopy = d.copyBoard(board);
 		
 		char[][] energyBoard = d.launchBeam(boardCopy, 0, 0, Direction.RIGHT);
-		for(int row = 0; row < board.length; row++) {
-			for(int col = 0; col < board[0].length; col++) {
-				System.out.print(energyBoard[row][col]);
-			}
-			System.out.println();
-		}
+		
 		System.out.println("Part 1: " + d.countEnergized(energyBoard));
-		
-		
-		
 		
 		int maxEnergy = 0;
 
+		//Compute energies starting from left and right side.
 		for(int startRow = 0; startRow < board.length; startRow++) {
 			boardCopy = d.copyBoard(board);
 			energyBoard = d.launchBeam(boardCopy, startRow, 0, Direction.RIGHT);
@@ -143,6 +134,7 @@ public class Day16 {
 			maxEnergy = Math.max(maxEnergy, d.countEnergized(energyBoard));
 		}
 		
+		//Compute energies starting from lower and upper side.
 		for(int startCol = 0; startCol < board[0].length; startCol++) {
 			boardCopy = d.copyBoard(board);
 			energyBoard = d.launchBeam(boardCopy, 0, startCol, Direction.DOWN);
@@ -187,6 +179,7 @@ public class Day16 {
 				int row = beam.getRow();
 				int col = beam.getCol();
 				
+				//If we land on a previous track, skip it as it wont lead to new tiles.
 				if(board[row][col] == '<' || board[row][col] == '>' || board[row][col] == '^' || board[row][col] == 'v') {
 					if(board[row][col] == '<' && beam.getDir() == Direction.LEFT) break;
 					else if(board[row][col] == '>' && beam.getDir() == Direction.RIGHT) break;
@@ -194,20 +187,12 @@ public class Day16 {
 					else if(board[row][col] == 'v' && beam.getDir() == Direction.DOWN) break;
 				}
 				
-		
-				
-				
-				
+						
 				row = beam.getRow();
 				col = beam.getCol();
 				
 				
 				energy[row][col]  = '#';
-				
-				
-				
-				
-				
 				
 				//Split case 1.
 				if(board[row][col] == '-') {
@@ -222,7 +207,6 @@ public class Day16 {
 				//Split case 2.
 				else if(board[row][col] == '|') {
 					if(beam.getDir() == Direction.LEFT || beam.getDir() == Direction.RIGHT) {
-						System.out.println("SPLIT");
 						q.add(new Beam(row, col, Direction.UP));
 						q.add(new Beam(row, col, Direction.DOWN));
 						energy[row][col]  = '#';
@@ -251,16 +235,13 @@ public class Day16 {
 					else beam.setDir(Direction.RIGHT);
 					
 					energy[row][col]  = '#';
-			}
-			
-				
-			
-				
-		}
+			}	
+		 }
 		}
 		return energy;
 	}
 	
+	//Fill tile with the current direction of beam.
 	public void fillTrack(char[][] board, Beam beam) {
 		int row = beam.getRow();
 		int col = beam.getCol();
@@ -281,9 +262,12 @@ public class Day16 {
 		}
 	}
 	
+	
 	public Queue<Beam> startBeams(char[][] board, int row, int col, Direction dir) {
 		Queue<Beam> q = new LinkedList<>();
+		//Default case: Starting at an empty space.
 		if(board[row][col] == '.') q.add(new Beam(row,col,dir));
+		//Shift Direction based on start tile.
 		else if(board[row][col] == '|' && (dir == Direction.RIGHT || dir == Direction.LEFT)) {
 			q.add(new Beam(row,col,Direction.UP));
 			q.add(new Beam(row,col,Direction.DOWN));
