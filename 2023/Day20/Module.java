@@ -1,6 +1,6 @@
 package AdventOfCode;
 
-public abstract class Module {
+public abstract class Module implements Cloneable {
 	private String name;
 	
 	public Module(String name) {
@@ -20,6 +20,8 @@ public abstract class Module {
 	public String getName() {
 		return this.name;
 	}
+	
+	public abstract void reset();
 	
 	public abstract void update(Pulse incPulse, Module inputModule);
 	
