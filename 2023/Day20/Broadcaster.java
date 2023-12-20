@@ -22,5 +22,11 @@ public class Broadcaster extends Module{
 		this.curr = incPulse;
 		
 	}
+
+	@Override
+	public void reset() {
+		this.curr = Pulse.LOW;
+		
+	}
 	
 }
