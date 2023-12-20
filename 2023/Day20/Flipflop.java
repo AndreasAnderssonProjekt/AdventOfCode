@@ -37,5 +37,11 @@ public class Flipflop extends Module{
 	public boolean readyToSend() {
 		return (this.pulse != Pulse.HIGH);
 	}
+
+	@Override
+	public void reset() {
+		this.on = false;
+		this.pulse = null;
+	}
 	
 }
