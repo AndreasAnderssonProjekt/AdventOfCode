@@ -36,5 +36,11 @@ public class Conjunction extends Module{
 	public void addToMemory(Module m) {
 		this.memory.put(m, Pulse.LOW);
 	}
+
+	@Override
+	public void reset() {
+		memory = new HashMap<>();
+		
+	}
 	
 }
