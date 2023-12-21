@@ -29,16 +29,8 @@ public class Day21 {
 		visited =  new boolean[lines.size()][lines.get(0).length()];
 		Queue<int[]> q = new LinkedList<>();
 		
-		for(int i = 0; i < board.length; i++) {
-			for(int j = 0; j < board[0].length; j++) {
-				board[i][j] = lines.get(i).charAt(j);
-				if(lines.get(i).charAt(j) == 'S') {
-					q.add(new int[] {i, j});
-					visited[i][j] = true;
-				}
-				visited[i][j] = false;
-			}
-		}
+		initialize(q, lines);
+		
 
 		prevBoard = new char[lines.size()][lines.get(0).length()];
 		prevprevBoard = new char[lines.size()][lines.get(0).length()];
@@ -46,8 +38,127 @@ public class Day21 {
 		
 		bfs(q, 0, stopLayer-1);
 		System.out.println("Part 1: " + countTiles(board));
+		
 	
+		
+		//Part 2
+		/**The horizontal and vertical path starting at the center do not have any obstacles.
+		 * Hence the final board will have: 
+		 * height of nrSteps // board.length - 1,
+		 * width of nrSteps // board[0].length - 1.
+		 * Since the input data have a dimension 131x131 and the starting position is placed
+		 * right in the middle of it the earliest we can reach the border is at step 65.
+		 * Luckily, it turns out that the input NrSteps minus 65 is divisible by the grid length (131):
+		 * 26501365-65/131 = 202300.
+		 * As the quickest way to a new board is through the middle lines we arrive at the middle
+		 * of the border of the new board.
+		 * To continue as the board size is odd i.e, 131 two succeeding boards will be filled
+		 * with a different number of tiles. Thus we have to distinguish between the number of
+		 * odd and even boards.
+		*/
+		
+		stopLayer = 26501365;
+		
+		int board_size = lines.size();
+		long expanded_board_size = Math.floorDiv(stopLayer, board.length);
+		
+		long nrOdd = (long) Math.pow(Math.floorDiv(expanded_board_size, 2) * 2 - 1, 2);
+		long nrEven = (long) Math.pow(Math.floorDiv(expanded_board_size, 2) * 2 , 2);
+		
+		//Number of points in fully filled boards (odd and even).
+		initialize(q, lines);
+		bfs(q, 0, board_size * 2);
+		long pointsOdd = countTiles(board);
+		initialize(q, lines);
+		bfs(q, 0, board_size * 2 + 1);
+		long pointsEven = countTiles(board);
+		
+		//Number of points in corners.
+		initialize(q, lines);
+		int[] start = q.poll();
+		q.add(new int[] {board_size - 1, start[1]});
+		bfs(q, 0, board_size-2);
+		long topCorner = countTiles(board);
+		
+		initialize(q, lines);
+		start = q.poll();
+		q.add(new int[] {start[0], 0});
+		bfs(q, 0, board_size - 2);
+		long rightCorner = countTiles(board);
+		
+		initialize(q, lines);
+		start = q.poll();
+		q.add(new int[] {0, start[1]});
+		bfs(q, 0, board_size - 2);
+		long bottomCorner = countTiles(board);
+		
+		initialize(q, lines);
+		start = q.poll();
+		q.add(new int[] {start[0], board_size - 1});
+		bfs(q, 0, board_size - 2);
+		long leftCorner = countTiles(board);
+		
+		//Large triangles.
+		initialize(q, lines);
+		q.remove();
+		q.add(new int[] {board_size - 1, 0});
+		bfs(q, 0, Math.floorDiv(board_size * 3, 2) - 2);
+		long topRightLarge = countTiles(board);
+		
+		initialize(q, lines);
+		q.remove();
+		q.add(new int[] {board_size - 1, board_size - 1});
+		bfs(q, 0, Math.floorDiv(board_size * 3, 2) - 2);
+		long topLeftLarge = countTiles(board);
+		
+		initialize(q, lines);
+		q.clear();
+		q.add(new int[] {0, 0});
+		bfs(q, 0, Math.floorDiv(board_size * 3, 2) - 2);
+		long bottomRightLarge = countTiles(board);
+		
+		initialize(q, lines);
+		q.remove();
+		q.add(new int[] {0, board_size-1});
+		bfs(q, 0, Math.floorDiv(board_size * 3, 2) - 2);
+		long bottomLeftLarge = countTiles(board);
+		
+		//Small triangles.
+		initialize(q, lines);
+		q.remove();
+		q.add(new int[] {board_size - 1, 0});
+		bfs(q, 0, Math.floorDiv(board_size,2) - 2);
+		long topRightSmall = countTiles(board);
+		
+		initialize(q, lines);
+		q.remove();
+		q.add(new int[] {board_size - 1, board_size - 1});
+		bfs(q, 0,  Math.floorDiv(board_size,2) - 2);
+		long topLeftSmall = countTiles(board);
+		
+		initialize(q, lines);
+		q.remove();
+		q.add(new int[] {0, 0});
+		bfs(q, 0,  Math.floorDiv(board_size,2) - 2);
+		long bottomRightSmall = countTiles(board);
+		
+		initialize(q, lines);
+		q.remove();
+		q.add(new int[] {0, board_size - 1});
+		bfs(q, 0,  Math.floorDiv(board_size,2) - 2);
+		long bottomLeftSmall = countTiles(board);
+		
+		
+		long part2 = (expanded_board_size) * (bottomLeftSmall + bottomRightSmall + topLeftSmall + topRightSmall);
+		part2 += (expanded_board_size-1) * (bottomLeftLarge + bottomRightLarge + topLeftLarge + topRightLarge);
+		part2 += topCorner + bottomCorner + leftCorner + rightCorner;
+		part2 += (nrOdd * pointsOdd) + (nrEven * pointsEven);
+		
+		System.out.println("Part 2: " + part2);
+		
 	}
+	
+	
 	
 	public static void bfs(Queue<int[]> q, int layer, int stopLayer) {
 
@@ -103,11 +214,7 @@ public class Day21 {
 			
 		}
 		
-		//Cycle.
-		if(equalBoards(prevprevBoard, board)) {
-			if(stopLayer - layer % 2 == 1) updateBoard(board,prevBoard);
-			return;
-		}
+		
 		
 		//Reached the last step.
 		if(layer == stopLayer) {
@@ -163,6 +270,30 @@ public class Day21 {
 				if(b2[i][j] == 'O') b1[i][j] = 'O';
 			}
 		}
+	}
+	
+	public static void printBoard(char[][] board) {
+		for(int i = 0; i < board.length; i++) {
+			for(int j = 0; j < board[0].length; j++) {
+				System.out.print(board[i][j]);
+			}
+			System.out.println();
+		}
+	}
+	
+	public static void initialize(Queue<int[]> q, ArrayList<String> lines) {
+		for(int i = 0; i < board.length; i++) {
+			for(int j = 0; j < board[0].length; j++) {
+				board[i][j] = lines.get(i).charAt(j);
+				if(lines.get(i).charAt(j) == 'S') {
+					q.add(new int[] {i, j});
+					visited[i][j] = true;
+				}
+				visited[i][j] = false;
+			}
+		}
+		prevBoard = new char[board.length][board[0].length];
+		prevprevBoard = new char[board.length][board[0].length];
 	}
 	
 	
