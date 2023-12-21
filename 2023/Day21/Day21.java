@@ -9,7 +9,11 @@ import java.util.Queue;
 import java.util.Scanner;
 
 public class Day21 {
-
+	private static char[][] board;
+	private static char[][] prevBoard;
+	private static char[][] prevprevBoard;
+	private static boolean[][] visited;
+	
 	public static void main(String[] args) throws FileNotFoundException {
 		File file = new File("C:\\Users\\Andre\\eclipse-workspace\\AdventOfCOde\\src\\testExempel");
 		Scanner sc = new Scanner(file);
@@ -21,8 +25,8 @@ public class Day21 {
 		}
 		sc.close();
 		
-		char[][] board = new char[lines.size()][lines.get(0).length()];
-		boolean[][] visited = new boolean[lines.size()][lines.get(0).length()];
+		board =  new char[lines.size()][lines.get(0).length()];
+		visited =  new boolean[lines.size()][lines.get(0).length()];
 		Queue<int[]> q = new LinkedList<>();
 		
 		for(int i = 0; i < board.length; i++) {
@@ -36,12 +40,16 @@ public class Day21 {
 			}
 		}
 
+		prevBoard = new char[lines.size()][lines.get(0).length()];
+		prevprevBoard = new char[lines.size()][lines.get(0).length()];
 		int stopLayer = 64;
-		bfs(q, board, visited, 0, stopLayer-1, new char[lines.size()][lines.get(0).length()], new char[lines.size()][lines.get(0).length()]);
+		
+		bfs(q, 0, stopLayer-1);
+		System.out.println("Part 1: " + countTiles(board));
 	
 	}
 	
-	public static void bfs(Queue<int[]> q, char[][] board, boolean[][] visited, int layer, int stopLayer, char[][] prevBoard, char[][] prevprevBoard) {
+	public static void bfs(Queue<int[]> q, int layer, int stopLayer) {
 
 		updateBoard(prevprevBoard, prevBoard);
 
@@ -97,19 +105,17 @@ public class Day21 {
 		
 		//Cycle.
 		if(equalBoards(prevprevBoard, board)) {
-			if(stopLayer - layer % 2 == 0) System.out.println("Answer: " + countTiles(board));
-			else System.out.println("Answer: " + countTiles(prevBoard));
+			if(stopLayer - layer % 2 == 1) updateBoard(board,prevBoard);
 			return;
 		}
 		
 		//Reached the last step.
 		if(layer == stopLayer) {
-			System.out.println("Part 1: " + (countTiles(board) ));	
 			return;
 		}
 		
 		
-		bfs(neighbours, board, visited, layer + 1, stopLayer, prevBoard, prevprevBoard);
+		bfs(neighbours, layer + 1, stopLayer);
 		
 		
 		
