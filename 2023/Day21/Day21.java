@@ -55,6 +55,7 @@ public class Day21 {
 		 * To continue as the board size is odd i.e, 131 two succeeding boards will be filled
 		 * with a different number of tiles. Thus we have to distinguish between the number of
 		 * odd and even boards.
+   		 * Lastly there will also be boards which havent been fully filled that also have to be considered.
 		*/
 		
 		stopLayer = 26501365;
