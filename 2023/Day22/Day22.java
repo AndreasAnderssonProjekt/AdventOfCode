@@ -116,6 +116,7 @@ public class Day22 {
 		
 		board = new int[largestCoords[0]+1][largestCoords[1]+1][largestCoords[2]+1];
 		
+		
 		//Initially the lowest point possible is one step above ground level.
 		for(int x = 0; x <= largestCoords[0]; x++) {
 			for(int y = 0; y <= largestCoords[1]; y++) {
@@ -124,13 +125,13 @@ public class Day22 {
 			}
 		}
 		
-		
-		
+		//Let all bricks fall.
 		while(!bricks.isEmpty()) {
 			Brick b = bricks.poll();
 			int[] start = b.getStart();
 			int[] end = b.getEnd();
 			int z = -1;
+			//Place each brick at the lowest available height.
 			for(int x = start[0]; x <= end[0]; x++) {
 				for(int y = start[1]; y <= end[1]; y++) {
 					Point point = d.new Point(x, y);
@@ -145,6 +146,7 @@ public class Day22 {
 				}
 			}
 			
+			//Place brick on board.
 			for(int x = start[0]; x <= end[0]; x++) {
 				for(int y = start[1]; y <= end[1]; y++) {
 					for(int zCord = z; zCord <= z +(end[2] - start[2]); zCord++)
@@ -153,22 +155,21 @@ public class Day22 {
 		}
 		}
 
-		Map<Integer, ArrayList<Integer>> supportedBy = supportedBy(); //Key = name of brick. Value = the bricks that is supports the key brick.
+		Map<Integer, ArrayList<Integer>> supportedBy = supportedBy(); //Key = name of brick. Value = the bricks that supports the key brick.
 		Map<Integer, ArrayList<Integer>> supports = supports(); //Key = name of brick. Value = the bricks that are supported by the key brick.
-		Map<Integer, Integer> desintegrate = new HashMap<>();
+		Map<Integer, Integer> desintegrate = new HashMap<>(); //Key = name of brick (only those who cause others to fall). Value = bricks that fall by removing the key brick.
+		ArrayList<Integer> canRemove = new ArrayList<>(); //The bricks that can be removed without causing any falls.
 		
-		
-		ArrayList<Integer> canRemove = new ArrayList<>();
 		
 		for(Integer key : supportedBy.keySet()) {
 			ArrayList<Integer> suppBy = supportedBy.get(key);
 			if(suppBy.size() > 1) {
-				 for(int i = 0; i < suppBy.size(); i++) {
+				 for(int i = 0; i < suppBy.size(); i++) { //Check if any of the bricks supported by the key brick is a lone supporter of any other brick.
 					 boolean safe = true;
 					 int supportBrick = suppBy.get(i);
 					 for(int j = 0; j < supports.get(supportBrick).size(); j++) {
 						 int otherSupportedBrick = supports.get(supportBrick).get(j);
-						 if(supportedBy.get(otherSupportedBrick).size() == 1 && otherSupportedBrick != key) {
+						 if(supportedBy.get(otherSupportedBrick).size() == 1 && otherSupportedBrick != key) { //Brick supported by the key is a lone supporter of another brick.
 							 safe = false;
 							 
 						 }
@@ -181,6 +182,7 @@ public class Day22 {
 			}
 		}
 		
+		//Add the bricks at the top.
 		for(Integer key : supports.keySet()) {
 			if(!canRemove.contains(key)) {
 				if(supports.get(key).size() == 0) canRemove.add(key);
@@ -207,7 +209,7 @@ public class Day22 {
 		for(int b : supports.get(brick)) {
 			potentialVictims.add(b);
 		}
-		
+		//Cascade through the bricks connected to the brick and check whether they fall.
 		while(!potentialVictims.isEmpty()) {
 			int victim = potentialVictims.poll();
 			if(isSubset(supportedBy.get(victim),removed)) {
@@ -231,12 +233,12 @@ public class Day22 {
 		return true;
 	}
 	
+	//Creates a Map where Key : brick name, Value: the bricks supports the key brick.
 	public static Map<Integer, ArrayList<Integer>> supportedBy() {
 		Map<Integer, ArrayList<Integer>> supportedBy = new HashMap<>();
 		for(int i = 0; i < board.length; i++) {
 			for(int j = 0; j < board[0].length; j++) {
 				for(int k = 0; k < board[0][0].length; k++) {
-					//SupportedBy
 					if(board[i][j][k] != 0 && board[i][j][k-1] != 0 && board[i][j][k] != board[i][j][k-1]) {
 						if(supportedBy.containsKey(board[i][j][k])){
 							if(supportedBy.get(board[i][j][k]).contains(board[i][j][k-1])) continue;
@@ -254,6 +256,7 @@ public class Day22 {
 		return supportedBy;
 	}
 	
+	//Creates a Map where Key : brick name, Value: the bricks supported by the key brick.
 	public static Map<Integer, ArrayList<Integer>> supports() {
 		Map<Integer, ArrayList<Integer>> supports = new HashMap<>();
 		for(int i = 0; i < board.length; i++) {
