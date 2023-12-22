@@ -125,7 +125,7 @@ public class Day22 {
 			}
 		}
 		
-		//Let all bricks fall.
+		//Let all bricks fall in order of start height.
 		while(!bricks.isEmpty()) {
 			Brick b = bricks.poll();
 			int[] start = b.getStart();
