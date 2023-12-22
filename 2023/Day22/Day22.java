@@ -145,9 +145,6 @@ public class Day22 {
 				}
 			}
 			
-			System.out.println("Z: " + z);
-			System.out.println("Z-start: " + start[2]);
-			System.out.println("Z-end: " + end[2]);
 			for(int x = start[0]; x <= end[0]; x++) {
 				for(int y = start[1]; y <= end[1]; y++) {
 					for(int zCord = z; zCord <= z +(end[2] - start[2]); zCord++)
@@ -158,7 +155,7 @@ public class Day22 {
 
 		Map<Integer, ArrayList<Integer>> supportedBy = supportedBy(); //Key = name of brick. Value = the bricks that is supports the key brick.
 		Map<Integer, ArrayList<Integer>> supports = supports(); //Key = name of brick. Value = the bricks that are supported by the key brick.
-		
+		Map<Integer, Integer> desintegrate = new HashMap<>();
 		
 		
 		ArrayList<Integer> canRemove = new ArrayList<>();
@@ -173,27 +170,67 @@ public class Day22 {
 						 int otherSupportedBrick = supports.get(supportBrick).get(j);
 						 if(supportedBy.get(otherSupportedBrick).size() == 1 && otherSupportedBrick != key) {
 							 safe = false;
+							 
 						 }
-						 
 					 }
-					 if(!canRemove.contains(supportBrick) && safe) canRemove.add(supportBrick);
+					 if(!canRemove.contains(supportBrick)) {
+						 if(safe) canRemove.add(supportBrick);
+						 else desintegrate.put(supportBrick, 0);
+					 }
 				 }
 			}
 		}
 		
 		for(Integer key : supports.keySet()) {
-			if(supports.get(key).size() == 0 && !canRemove.contains(key)) canRemove.add(key);
+			if(!canRemove.contains(key)) {
+				if(supports.get(key).size() == 0) canRemove.add(key);
+				else desintegrate.put(key, 0);
+			}
 		}
 		
-		System.out.println(supportedBy.toString());
-		System.out.println(supports.toString());
-		System.out.println(canRemove.toString());
-		
-		System.out.println(board[4][0][1]);
 		System.out.println("Part 1: " + canRemove.size());
-		
+		System.out.println("Part 2: " + totDesintegration(desintegrate, supportedBy, supports));
 	
 	}
+	
+	public static int totDesintegration(Map<Integer, Integer> desintegrate, Map<Integer, ArrayList<Integer>> supportedBy, Map<Integer, ArrayList<Integer>> supports) {
+		int tot = 0;
+		for(int key : desintegrate.keySet()) tot += nrDesintegrate(key, supportedBy, supports);
+		return tot;
+	}
+	
+	public static int nrDesintegrate(int brick, Map<Integer, ArrayList<Integer>> supportedBy, Map<Integer, ArrayList<Integer>> supports) {
+		ArrayList<Integer> removed = new ArrayList<>();
+		removed.add(brick);
+		Queue<Integer> potentialVictims = new LinkedList<>();
+		
+		for(int b : supports.get(brick)) {
+			potentialVictims.add(b);
+		}
+		
+		while(!potentialVictims.isEmpty()) {
+			int victim = potentialVictims.poll();
+			if(isSubset(supportedBy.get(victim),removed)) {
+				if(!removed.contains(victim)) {
+					removed.add(victim);
+					for(int b : supports.get(victim)) {
+						potentialVictims.add(b);
+					}
+				}
+
+			}
+		}
+		
+		return removed.size() - 1;
+	}
+	
+	public static boolean isSubset(ArrayList<Integer> l1, ArrayList<Integer> l2) {
+		for(int i : l1) {
+			if(!l2.contains(i)) return false;
+		}
+		return true;
+	}
+	
 	public static Map<Integer, ArrayList<Integer>> supportedBy() {
 		Map<Integer, ArrayList<Integer>> supportedBy = new HashMap<>();
 		for(int i = 0; i < board.length; i++) {
@@ -210,7 +247,7 @@ public class Day22 {
 							list.add(board[i][j][k-1]);
 							supportedBy.put(board[i][j][k], list);
 						}
-						}
+					}
 				}
 			}
 		}
