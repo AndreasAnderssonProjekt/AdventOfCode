@@ -131,7 +131,7 @@ public class Day22 {
 			int[] start = b.getStart();
 			int[] end = b.getEnd();
 			int z = -1;
-			//Place each brick at the lowest available height.
+			//Compute the lowest available height for the current brick.
 			for(int x = start[0]; x <= end[0]; x++) {
 				for(int y = start[1]; y <= end[1]; y++) {
 					Point point = d.new Point(x, y);
@@ -139,7 +139,7 @@ public class Day22 {
 				}
 			}
 			
-			
+			//Place brick at the lowest available height.
 			for(int x = start[0]; x <= end[0]; x++) {
 				for(int y = start[1]; y <= end[1]; y++) {
 					lowest.put(d.new Point(x,y), z + end[2] - start[2] + 1);
@@ -160,7 +160,7 @@ public class Day22 {
 		Map<Integer, Integer> desintegrate = new HashMap<>(); //Key = name of brick (only those who cause others to fall). Value = bricks that fall by removing the key brick.
 		ArrayList<Integer> canRemove = new ArrayList<>(); //The bricks that can be removed without causing any falls.
 		
-		
+		//Determine which bricks causes others to fall and which does not affect other bricks.
 		for(Integer key : supportedBy.keySet()) {
 			ArrayList<Integer> suppBy = supportedBy.get(key);
 			if(suppBy.size() > 1) {
@@ -171,7 +171,6 @@ public class Day22 {
 						 int otherSupportedBrick = supports.get(supportBrick).get(j);
 						 if(supportedBy.get(otherSupportedBrick).size() == 1 && otherSupportedBrick != key) { //Brick supported by the key is a lone supporter of another brick.
 							 safe = false;
-							 
 						 }
 					 }
 					 if(!canRemove.contains(supportBrick)) {
@@ -192,7 +191,6 @@ public class Day22 {
 		
 		System.out.println("Part 1: " + canRemove.size());
 		System.out.println("Part 2: " + totDesintegration(desintegrate, supportedBy, supports));
-	
 	}
 	
 	public static int totDesintegration(Map<Integer, Integer> desintegrate, Map<Integer, ArrayList<Integer>> supportedBy, Map<Integer, ArrayList<Integer>> supports) {
