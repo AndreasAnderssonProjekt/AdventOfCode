@@ -14,9 +14,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
 
-import AdventOfCode.Day20.Point;
-
-
 public class Day23Part2 {
 
 	private class Node implements Comparable<Node>{
