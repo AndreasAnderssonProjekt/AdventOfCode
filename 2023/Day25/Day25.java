@@ -147,7 +147,7 @@ public class Day25{
 		Scanner sc = new Scanner(file);
 		Day25 d = new Day25();
 		Map<String, Integer> nodes = new HashMap<>();
-		Map<Integer, String> inverse = new HashMap<>();
+		Map<Integer, String> inverseNodes = new HashMap<>();
 		Map<String, List<String>> map = new HashMap<>();
  		int nodeNr = 0;
 		List<String> lines = new ArrayList<>();
@@ -160,34 +160,28 @@ public class Day25{
 			String[] components = line.split(": ");
 			if(!nodes.containsKey(components[0])) {
 				nodes.put(components[0], nodeNr);
-				inverse.put(nodeNr, components[0]);
+				inverseNodes.put(nodeNr, components[0]);
 				nodeNr += 1;
 			}
 			if(!map.containsKey(components[0])) map.put(components[0], new ArrayList<String>());
 			
-			
 			String[] neighbours = components[1].split(" ");
-			
 			for(int i = 0; i < neighbours.length; i++) {
 				if(!nodes.containsKey(neighbours[i])) {
 					nodes.put(neighbours[i], nodeNr);
 					
-					inverse.put(nodeNr, neighbours[i]);
+					inverseNodes.put(nodeNr, neighbours[i]);
 					nodeNr += 1;
 				}
 				if(!map.containsKey(neighbours[i])) map.put(neighbours[i], new ArrayList<String>());
 				map.get(neighbours[i]).add(components[0]);
 				map.get(components[0]).add(neighbours[i]);
 			}
-			
-			
-			
 		}
 		
 		
-		
+		//Create adjacency matrix.
 		int[][] connections = new int[nodes.size()][nodes.size()];
-		
 		for(String line : lines) {
 			String[] components = line.split(": ");
 			String[] neighbours = components[1].split(" ");
@@ -200,73 +194,44 @@ public class Day25{
 		
 		Network_Flow nf = d.new Network_Flow(connections, 0, connections.length - 1);
 		List<int[]> connectionsToRemove = nf.Ford_Fulkerson();
-		System.out.println(nodes);
-		
-		System.out.println("MAP: " + map);
+
+		//Remove connections
 		for(int[] i : connectionsToRemove) {
-			map.get(inverse.get(i[0])).remove(inverse.get(i[1]));
-			map.get(inverse.get(i[1])).remove(inverse.get(i[0]));
+			map.get(inverseNodes.get(i[0])).remove(inverseNodes.get(i[1]));
+			map.get(inverseNodes.get(i[1])).remove(inverseNodes.get(i[0]));
 		}
 		
+		//The ends of the removed connections belong to different components.
 		int start1 = connectionsToRemove.get(0)[0];
 		int start2 = connectionsToRemove.get(0)[1];
-		System.out.println("MAP: " + map);
-		Queue<String> q = new LinkedList<>();
-		Set<String> set1 = new HashSet<>();
 		
+		int size1 = d.componentSize(start1, nodes, inverseNodes, map);
+		int size2 = d.componentSize(start2, nodes, inverseNodes, map);
 		
-			q.add(inverse.get(start1));
-			set1.add(inverse.get(start1));
-		
-		
-		
-		
-		System.out.println("INV : " + inverse);
-		System.out.println(inverse.get(start1));
-		
-		while(!q.isEmpty()) {
-			String c = q.poll();
-			System.out.println("HEJ : " + c);
-			for(String s : map.get(inverse.get(nodes.get(c)))){
-				if(!set1.contains(s)) {
-					set1.add(s);
-					q.add(s);
-				}
-			}
-		}
-		
-		//Map not correct.
-		
-		q = new LinkedList<>();
-		Set<String> set2 = new HashSet<>();
-		if(map.get(inverse.get(start2)) != null) {
-		for(String s : map.get(inverse.get(start2))) {
-			q.add(inverse.get(start2));
-			set2.add(inverse.get(start2));
-		}
-		}
-		System.out.println("INV : " + inverse);
-		System.out.println(inverse.get(start1));
-		
-		while(!q.isEmpty()) {
-			String c = q.poll();
-			System.out.println("HEJ : " + c);
-			for(String s : map.get(inverse.get(nodes.get(c)))){
-				if(!set2.contains(s)) {
-					set2.add(s);
-					q.add(s);
-				}
-			}
-		}
-		
-		System.out.println(set1);
-		System.out.println(set2);
-		System.out.println(set1.size() * set2.size());
+		System.out.println(size1 * size2);
 		
 		
 	}
 	
 	 
+	public int componentSize(int start, Map<String, Integer> nodes, Map<Integer, String> inverse, Map<String, List<String>> map) {
+		Queue<String> q = new LinkedList<>();
+		Set<String> set = new HashSet<>();
+		
+		q.add(inverse.get(start));
+		set.add(inverse.get(start));
+	
+		while(!q.isEmpty()) {
+			String node = q.poll();
+			for(String other : map.get(inverse.get(nodes.get(node)))){
+				if(!set.contains(other)) {
+					set.add(other);
+					q.add(other);
+				}
+			}
+		}
+		return set.size();
+	}
 	
 }
 
